@@ -1,57 +1,81 @@
 package org.firstinspires.ftc.teamcode.old.backend.subsystems.actuators.endEffectors;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.backend.libraries.subsystem;
-import org.firstinspires.ftc.teamcode.backend.subsystems.actuators.base.Motor;
+import org.firstinspires.ftc.teamcode.old.backend.libraries.subsystem;
+import org.firstinspires.ftc.teamcode.old.backend.subsystems.actuators.base.Motor;
 
 /**
- * The PassiveRoller1Motor class controls a passive roller mechanism using a single motor
- * It provides functionality to roll the mechanism forward, backward, or disengage it
+ * The PassiveRoller1Motor class controls a passive roller mechanism using a single motor.
+ * It provides functionality to roll the mechanism forward, backward, or disengage it.
  */
 public class PassiveRoller1Motor extends subsystem {
     private Motor motor;
     public final String name;
-    private final double rollerSpeed;
+    private double rollerSpeed;
 
     /**
-     * Enum to define roller control directions: forward, backward, or disengaged
+     * Enum representing the control directions for the roller mechanism:
+     * FORWARD, BACKWARD, or DISENGAGE (stop the roller).
      */
     enum RollerControl {
         FORWARD, BACKWARD, DISENGAGE
     }
 
     /**
-     * Constructs a new PassiveRoller1Motor instance
+     * Constructs a new PassiveRoller1Motor instance.
      *
-     * @param name        The name of the roller system
-     * @param motor       The Motor object controlling the roller
-     * @param telemetry   Telemetry object for logging and debugging
-     * @param rollerSpeed The speed at which the roller operates
+     * @param name        The name of the roller system, primarily for telemetry and identification.
+     * @param motor       The motor object responsible for controlling the roller.
+     * @param telemetry   Telemetry object for logging and debugging purposes.
+     * @param rollerSpeed The speed at which the roller will operate (range from 0 to 1, typically).
      */
     public PassiveRoller1Motor(String name, Motor motor, Telemetry telemetry, int rollerSpeed) {
         super(telemetry);
         this.name = name;
         this.motor = motor;
         this.rollerSpeed = rollerSpeed;
-        motor.RWE();  // Reset motor encoders or setup (assuming RWE stands for Reset With Encoders).
+        motor.RWE();  // Resets or configures the motor for running without encoders.
     }
 
     /**
-     * Controls the roller mechanism based on the given control direction
+     * Sets the speed at which the roller will operate.
      *
-     * @param control The desired control direction for the roller (FORWARD, BACKWARD, or DISENGAGE)
+     * @param rollerSpeed The desired speed for the roller (between 0 and 1).
      */
-    public void roll(RollerControl control) {
-        switch (control) {
-            case FORWARD:
-                motor.SP(rollerSpeed);  // Set motor power to rollerSpeed for forward motion.
-                break;
-            case BACKWARD:
-                motor.SP(-rollerSpeed);  // Set motor power to negative rollerSpeed for backward motion.
-                break;
-            case DISENGAGE:
-                motor.SP(0);  // Stop the motor, disengaging the roller.
-                break;
-        }
+    public void setRollerSpeed(double rollerSpeed) {
+        this.rollerSpeed = rollerSpeed;
+    }
+
+    /**
+     * Controls the roller mechanism according to the specified direction.
+     * The roller can roll forward, backward, or stop.
+     *
+     * @param control The desired control direction: FORWARD, BACKWARD, or DISENGAGE.
+     * @return A new Action object that, when run, will control the roller based on the specified direction.
+     */
+    public Action roll(RollerControl control) {
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                switch (control) {
+                    case FORWARD:
+                        motor.SP(rollerSpeed);  // Move the roller forward at the specified speed.
+                        break;
+                    case BACKWARD:
+                        motor.SP(-rollerSpeed);  // Move the roller backward at the specified speed.
+                        break;
+                    case DISENGAGE:
+                        motor.SP(0);  // Stop the roller.
+                        break;
+                }
+                packet.put(name + " direction: ", control.toString());  // Log the control direction to telemetry.
+                return control != RollerControl.DISENGAGE;  // Return true if the roller is moving, false if disengaged.
+            }
+        };
     }
 }

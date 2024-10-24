@@ -6,8 +6,8 @@ import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.backend.libraries.subsystem;
-import org.firstinspires.ftc.teamcode.backend.subsystems.opModeTools.EaseCommands;
+import org.firstinspires.ftc.teamcode.old.backend.libraries.subsystem;
+import org.firstinspires.ftc.teamcode.old.backend.subsystems.opModeTools.EaseCommands;
 
 import java.util.Objects;
 

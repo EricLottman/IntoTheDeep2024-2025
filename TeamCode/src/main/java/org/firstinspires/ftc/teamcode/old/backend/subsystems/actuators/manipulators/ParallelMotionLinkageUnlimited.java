@@ -1,177 +1,276 @@
 package org.firstinspires.ftc.teamcode.old.backend.subsystems.actuators.manipulators;
 
+import androidx.annotation.NonNull;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.SequentialAction;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.backend.libraries.subsystem;
-import org.firstinspires.ftc.teamcode.backend.subsystems.actuators.base.Motor;
-
+import org.firstinspires.ftc.teamcode.old.backend.libraries.subsystem;
+import org.firstinspires.ftc.teamcode.old.backend.subsystems.actuators.base.Motor;
 import java.util.LinkedList;
 
+/**
+ * This class represents a parallel motion linkage system that controls a motor
+ * for a mechanism without hard bounds. It includes methods to manage position,
+ * power, and control behaviors for the motor.
+ */
 public class ParallelMotionLinkageUnlimited extends subsystem {
     private Motor motor;
     public final String name;
     public final double inchRadius;
     private final int ticksPerRotation;
+    private double power;
+    private int targetPosition, tolerance;
     LinkedList<Integer> positions = new LinkedList<>();
 
     /**
-     * Creates a ChainLinkage object with no min/max bounds
+     * Creates a ParallelMotionLinkageUnlimited object with no min/max bounds.
      *
-     * @param name       Name of system, used pretty much only for telemetry
-     * @param motor      Motor for the chain linkage
-     * @param telemetry  Telemetry Object
-     * @param inchRadius Radius of the sprocket in inches
-     * @param gearRatio  Gear ratio for the linkage
+     * @param name       Name of the system, primarily used for telemetry.
+     * @param motor      Motor for the chain linkage.
+     * @param telemetry  Telemetry object for logging and debugging.
+     * @param inchRadius Radius of the sprocket in inches.
+     * @param gearRatio  Gear ratio of the linkage system.
      */
     public ParallelMotionLinkageUnlimited(String name, Motor motor, Telemetry telemetry, double inchRadius, int gearRatio) {
         super(telemetry);
         this.name = name;
         this.motor = motor;
         this.inchRadius = inchRadius;
-        this.ticksPerRotation = (int) (gearRatio * 28); // Assume 28 ticks per rotation per motor revolution
+        this.ticksPerRotation = (int) (gearRatio * 28); // Assume 28 ticks per motor revolution
+        this.power = .7;
+        this.tolerance = 5;
+        this.motor.ST(tolerance);
+        this.motor.SP(power);
     }
 
     /**
-     * Checks if the motor is busy
+     * Checks if the linkage's motor is currently running.
      *
-     * @return Boolean, true if the motor is still running
+     * @return True if the motor is busy, false otherwise.
      */
     public boolean isBusy() {
         return motor.isBusy();
     }
 
     /**
-     * Sets power to the motor
+     * Represents an action to set the motor's power.
+     */
+    private class SetPower implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            motor.SP(power);
+            return false;
+        }
+    }
+
+    /**
+     * Sets the power of the motor and returns an action that applies this setting.
      *
-     * @param power Power for the motor, from 0 to 1
+     * @param power Power level to set for the motor (range: 0 to 1).
+     * @return An action that sets the motor's power.
      */
-    public void SP(double power) {
-        motor.SP(power);
+    private Action setPower(double power) {
+        this.power = power;
+        return new SetPower();
     }
 
     /**
-     * Sets the motor mode to RUN_TO_POSITION
+     * Represents an action to run the motor to the target position.
      */
-    public void RTP() {
-        motor.RTP();
+    private class RunToPosition implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            motor.RTP();
+            return false;
+        }
     }
 
     /**
-     * Set the target position without any bounds since chain linkage has no min or max
+     * Returns an action that commands the motor to run to its target position.
      *
-     * @param targetPosition Target position in ticks
+     * @return An action that runs the motor to the target position.
      */
-    public void STP(int targetPosition) {
-        motor.STP(targetPosition); // No min/max checks here
+    private Action runToPosition() {
+        return new RunToPosition();
     }
 
     /**
-     * Resets the motor encoder to zero
+     * Represents an action to set the target position for the motor.
      */
-    public void SAR() {
-        motor.SAR();
+    private class SetTargetPosition implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            motor.STP(targetPosition);
+            return false;
+        }
     }
 
     /**
-     * Runs the motor without using an encoder
-     */
-    public void RWE() {
-        motor.RWE();
-    }
-
-    /**
-     * Runs the motor using an encoder
-     */
-    public void RUE() {
-        motor.RUE();
-    }
-
-    /**
-     * Sets the tolerance in ticks for the motor
+     * Sets the motor's target position in ticks and returns an action to apply this change.
      *
-     * @param ticks Number of ticks for the tolerance
+     * @param targetPosition Desired target position in ticks.
+     * @return An action that sets the motor's target position.
      */
-    public void ST(int ticks) {
-        motor.ST(ticks);
+    private Action setTargetPosition(int targetPosition) {
+        this.targetPosition = targetPosition;
+        return new SetTargetPosition();
     }
 
     /**
-     * Gets the current position of the motor in ticks
-     *
-     * @return The current motor position in ticks
+     * Represents an action to stop and reset the motor encoders.
      */
-    public int GCP() {
+    private class StopAndReset implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            motor.SAR();
+            return false;
+        }
+    }
+
+    /**
+     * Returns an action to stop and reset the motor's encoders.
+     *
+     * @return An action that stops and resets the motor.
+     */
+    private Action stopAndReset() {
+        return new StopAndReset();
+    }
+
+    /**
+     * Represents an action to run the motor without using the encoders.
+     */
+    private class RunWithoutEncoder implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            motor.RWE();
+            return false;
+        }
+    }
+
+    /**
+     * Returns an action that sets the motor to run without encoders.
+     *
+     * @return An action that applies the RUN_WITHOUT_ENCODER mode.
+     */
+    private Action runWithoutEncoder() {
+        return new RunWithoutEncoder();
+    }
+
+    /**
+     * Represents an action to run the motor using encoders.
+     */
+    private class RunUsingEncoder implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            motor.RUE();
+            return false;
+        }
+    }
+
+    /**
+     * Returns an action that sets the motor to run using encoders.
+     *
+     * @return An action that applies the RUN_USING_ENCODER mode.
+     */
+    private Action runUsingEncoder() {
+        return new RunUsingEncoder();
+    }
+
+    /**
+     * Represents an action to set the tolerance for the motor.
+     */
+    public class SetTolerance implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            motor.ST(tolerance);
+            return false;
+        }
+    }
+
+    /**
+     * Sets the tolerance for the motor, which defines how close it must be to the target
+     * position for isBusy() to return false.
+     *
+     * @param tolerance Tolerance value in ticks.
+     * @return An action that sets the motor's tolerance.
+     */
+    public Action setTolerance(int tolerance) {
+        this.tolerance = tolerance;
+        return new SetTolerance();
+    }
+
+    /**
+     * Gets the current position of the motor.
+     *
+     * @return Current motor position in ticks.
+     */
+    public int getCurrentPosition() {
         return motor.GCP();
     }
 
     /**
-     * Gets the target position of the motor
+     * Gets the motor's target position.
      *
-     * @return The motor's target position in ticks
+     * @return Target position of the motor in ticks.
      */
-    public int GTP() {
-        return motor.GTP();
+    public int getTargetPosition() {
+        return this.targetPosition;
     }
 
     /**
-     * Returns the motor's power
+     * Gets the power currently set on the motor.
      *
-     * @return The current power of the motor as a double
+     * @return The power level of the motor as a double.
      */
-    public double GP() {
+    private double getPower() {
         return motor.GP();
     }
 
     /**
-     * Moves the motor to a specific position in degrees
+     * Moves the motor to the specified target position in degrees, considering
+     * the circular nature of rotation (0 to 360 degrees).
      *
-     * @param degrees The target position in degrees
+     * @param targetDegrees Desired target position in degrees (0-360).
+     * @return An action to move the motor to the specified position in degrees.
      */
-    public void goToPosition(int degrees) {
-        goToPosition(degrees, true);
+    public Action goToDegrees(int targetDegrees) {
+        return new SequentialAction(
+                setTargetPosition((ticksPerRotation * getClosestTargetPosition(getCurrentDegrees(), targetDegrees)) / 360),
+                runToPosition());
     }
 
     /**
-     * Moves to the closest target position in degrees, taking into account circular nature (0 == 360).
+     * Moves the motor to the target position and waits until it reaches that position.
      *
-     * @param targetDegrees The target position in degrees (0-360).
-     * @param wait          Whether to wait until the motor reaches the position.
+     * @param targetPosition Desired position in degrees.
+     * @return An action that moves the motor and waits for it to reach the target.
      */
-    public void goToPosition(int targetDegrees, boolean wait) {
-        int currentDegrees = getCurrentDegrees(); // Get current position in degrees
-        int closestTarget = getClosestTargetPosition(currentDegrees, targetDegrees);
-
-        // Convert closest target position (degrees) to encoder ticks
-        int targetTicks = (ticksPerRotation * closestTarget) / 360;
-
-        // Move the motor
-        Telemetry.Item chainLinkageTelemetry = telemetry().addData(this.name, " moving to " + closestTarget + " degrees");
-        STP(targetTicks);
-        SP(.8); // Start motor at higher speed
-        RTP();
-        if (wait) {
-            telemetry().update();
-            while (isBusy()) {
-            }
-        }
-        SP(.4); // Slow down as it approaches the target
-        telemetry().removeItem(chainLinkageTelemetry);
-        telemetry().update();
+    public Action goToDegreesWaitTillPosition(int targetPosition) {
+        return new SequentialAction(
+                setTargetPosition((ticksPerRotation * getClosestTargetPosition(getCurrentDegrees(), targetPosition)) / 360),
+                runToPosition(),
+                new Action() {
+                    @Override
+                    public boolean run(@NonNull TelemetryPacket packet) {
+                        return !motor.isBusy();
+                    }
+                }
+        );
     }
 
     /**
-     * Returns the closest target position to the current position (in degrees),
-     * considering the circular nature (0 degrees = 360 degrees).
+     * Returns the closest target position to the current one, in degrees,
+     * considering the circular nature of rotation (0 to 360 degrees).
      *
-     * @param currentDegrees The current position in degrees.
-     * @param targetDegrees  The target position in degrees.
-     * @return The closest target position to move to, in degrees.
+     * @param currentDegrees Current position of the motor in degrees.
+     * @param targetDegrees  Desired target position in degrees.
+     * @return Closest target position in degrees.
      */
     private int getClosestTargetPosition(int currentDegrees, int targetDegrees) {
-        // Normalize both current and target positions between 0 and 360
         currentDegrees = normalizeDegrees(currentDegrees);
         targetDegrees = normalizeDegrees(targetDegrees);
 
-        // Calculate clockwise and counterclockwise distances
         int clockwiseDistance = targetDegrees >= currentDegrees ?
                 targetDegrees - currentDegrees :
                 360 - currentDegrees + targetDegrees;
@@ -180,67 +279,66 @@ public class ParallelMotionLinkageUnlimited extends subsystem {
                 currentDegrees - targetDegrees :
                 currentDegrees + 360 - targetDegrees;
 
-        // Return the direction with the shortest distance
         return clockwiseDistance <= counterClockwiseDistance ? targetDegrees : targetDegrees - 360;
     }
 
     /**
-     * Adds a position in ticks to the list of positions, making sure it's normalized within the 0-360 range.
+     * Adds a position in ticks to the list of predefined positions.
+     * Ensures the position is normalized to the 0-360 degrees range.
      *
-     * @param ticks The position in ticks to add
-     * @return Returns false if the equivalent position is already present
+     * @param ticks Position in ticks to add.
+     * @return False if an equivalent position already exists, true otherwise.
      */
     public boolean addRotationPosition(int ticks) {
-        // Normalize ticks to degrees (0 to 360)
         int degrees = normalizeDegrees((ticks * 360) / ticksPerRotation);
 
-        // Check if the equivalent position (in degrees) is already in the list
         for (int existingTicks : positions) {
             int existingDegrees = normalizeDegrees((existingTicks * 360) / ticksPerRotation);
             if (existingDegrees == degrees) {
-                return false; // Equivalent position already exists
+                return false;
             }
         }
-
-        positions.add(ticks); // Add ticks if not already present
+        positions.add(ticks);
         return true;
     }
 
     /**
-     * Moves to the closest predefined position in the list of positions.
+     * Moves the motor to the closest predefined position from the list of positions.
      *
-     * @param position The index of the position in the list
-     * @param wait     Whether to wait for the motor to reach the position
-     * @return Returns false if the position index is invalid
+     * @param position Index of the position in the list.
+     * @return False if the position index is invalid.
      */
-    public boolean goToRotationPosition(int position, boolean wait) {
-        if (positions.size() <= position)
-            return false;
-
-        int targetTicks = positions.get(position);
-        int closestTarget = getClosestPosition(targetTicks);
-        goToPosition(closestTarget, wait);
-        return true;
+    public Action goToRotationPosition(int position) {
+        return goToDegrees(getClosestPosition(positions.get(position)));
     }
 
     /**
-     * Finds the closest target position in ticks, considering the circular nature of 0-360 degrees.
+     * Moves the motor to the closest predefined position from the list of positions,
+     * and waits until it reaches that position.
      *
-     * @param targetTicks The target position in ticks
-     * @return The closest target position in ticks
+     * @param level Index of the position in the list.
+     * @return An action that moves the motor to the position and waits.
+     */
+    public Action goToRotationPositionWaitTillPosition(int level) {
+        return goToDegreesWaitTillPosition(positions.get(level));
+    }
+
+    /**
+     * Finds the closest target position in ticks based on the specified target position,
+     * considering the circular nature of rotation (0 to 360 degrees).
+     *
+     * @param targetTicks Target position in ticks.
+     * @return Closest target position in ticks.
      */
     private int getClosestPosition(int targetTicks) {
-        int currentDegrees = getCurrentDegrees(); // Get the current motor position in degrees
-        int targetDegrees = normalizeDegrees((targetTicks * 360) / ticksPerRotation); // Convert target ticks to degrees
-
-        return (ticksPerRotation * getClosestTargetPosition(currentDegrees, targetDegrees)) / 360; // Convert closest degrees back to ticks
+        return (ticksPerRotation * getClosestTargetPosition(getCurrentDegrees(), normalizeDegrees((targetTicks * 360) / ticksPerRotation))) / 360;
     }
 
     /**
-     * Normalizes the input degrees to be within the 0-360 range.
+     * Normalizes a given angle in degrees to the range of 0 to 360 degrees.
      *
-     * @param degrees Input degrees.
-     * @return Degrees normalized to the range 0-360.
+     * @param degrees Angle in degrees to normalize.
+     * @return Normalized angle within the 0-360 degree range.
      */
     private int normalizeDegrees(int degrees) {
         degrees = degrees % 360;
@@ -248,13 +346,11 @@ public class ParallelMotionLinkageUnlimited extends subsystem {
     }
 
     /**
-     * Get the current position in degrees based on the motor's current tick count.
+     * Retrieves the motor's current position in degrees based on its current tick count.
      *
-     * @return The current position of the motor in degrees.
+     * @return Current motor position in degrees.
      */
     private int getCurrentDegrees() {
-        int currentTicks = GCP(); // Get current position in ticks
-        return (currentTicks * 360) / ticksPerRotation; // Convert ticks to degrees
+        return (getCurrentPosition() * 360) / ticksPerRotation;
     }
-
 }

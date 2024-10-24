@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.backend.libraries.subsystem;
+import org.firstinspires.ftc.teamcode.old.backend.libraries.subsystem;
 
 /**
  * A class representing a motor and providing methods for controlling and interacting with it.
@@ -34,6 +34,10 @@ public class Motor extends subsystem implements Comparable<Motor> {
      */
     public Motor(String name, HardwareMap hwMap, Telemetry telemetry) {
         this(name, hwMap, DcMotorSimple.Direction.FORWARD, telemetry);
+    }
+
+    public double getVelocity() {
+        return this.motor.getVelocity();
     }
 
     /**

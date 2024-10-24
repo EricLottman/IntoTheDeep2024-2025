@@ -1,16 +1,31 @@
 package org.firstinspires.ftc.teamcode.old.backend.subsystems.actuators.manipulators;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.SequentialAction;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.backend.libraries.subsystem;
-import org.firstinspires.ftc.teamcode.backend.subsystems.actuators.base.Motor;
-import org.firstinspires.ftc.teamcode.backend.subsystems.Constants;
+import org.firstinspires.ftc.teamcode.old.backend.libraries.subsystem;
+import org.firstinspires.ftc.teamcode.old.backend.subsystems.actuators.base.Motor;
+import org.firstinspires.ftc.teamcode.old.backend.subsystems.Constants;
 
 import java.util.LinkedList;
 
+/**
+ * The Lift2Motor class controls two motors that run in parallel for lifting mechanisms.
+ * It manages motor operations such as moving to a specific position,
+ * setting power, and handling various modes of operation (with or without encoders).
+ * This class extends the subsystem class to integrate with the telemetry system.
+ */
 public class Lift2Motor extends subsystem {
     private Motor motor1, motor2;
     public final String name;
     private final int min, max;
+    private double power;
+    private int targetPosition, tolerance;
     LinkedList<Integer> levels = new LinkedList<>();
 
     /**
@@ -30,145 +45,234 @@ public class Lift2Motor extends subsystem {
         this.motor2 = motor2;
         this.min = min;
         this.max = max;
+        this.power = 0;
+        this.tolerance = 5;
+        this.motor1.ST(tolerance);
+        this.motor2.ST(tolerance);
     }
 
     /**
-     * If the slide/lift is running
+     * Checks if the lift motors are currently busy (running).
      *
-     * @return Boolean, true if motors are running
+     * @return true if the motors are busy; false otherwise.
      */
     public boolean isBusy() {
         return motor1.isBusy() && motor2.isBusy();
     }
 
+    private class SetPower implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            motor1.SP(power);
+            motor2.SP(power);
+            return false;
+        }
+    }
+
     /**
-     * Sets power to the motor
+     * Sets the power to the motors.
      *
-     * @param power Power you want the motor to travel at, 0-1
+     * @param power Power value for the motors, should be between 0 and 1.
+     * @return An Action that sets the motors' power.
      */
-    public void SP(double power) {
-        motor1.SP(power);
-        motor1.SP(power);
+    private Action setPower(double power) {
+        this.power = power;
+        return new SetPower();
+    }
+
+    private class RunToPosition implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            motor1.RTP();
+            motor2.RTP();
+            return false;
+        }
     }
 
     /**
-     * Sets the mode of the motor to RUN_TO_POSITION using case switch
-     */
-    public void RTP() {
-        motor1.RTP();
-        motor2.RTP();
-    }
-
-    /**
-     * Set the target position of the motors using a case switch
-     */
-    public void STP(int targetPosition) {
-        motor1.STP(targetPosition > this.max ? this.max : (targetPosition < this.min ? this.min : targetPosition));
-        motor2.STP(targetPosition > this.max ? this.max : (targetPosition < this.min ? this.min : targetPosition));
-    }
-
-    /**
-     * Sets given motors relative ticks to 0, STOP_AND_RESET_ENCODERS
-     */
-    public void SAR() {
-        motor1.SAR();
-        motor2.SAR();
-    }
-
-    /**
-     * Sets given motors to RunMode.RUN_WITHOUT_ENCODER
-     */
-    public void RWE() {
-        motor1.RWE();
-        motor2.RWE();
-    }
-
-    /**
-     * Sets given motors to RunMode.RUN_USING_ENCODER
-     */
-    public void RUE() {
-        motor1.RUE();
-        motor2.RUE();
-    }
-
-    /**
-     * Set the tolerance of the motor, used to determine how close the target position must be to the current position for isBusy() to return false
+     * Returns an Action that runs the motors to the target position.
      *
-     * @param ticks Number of ticks
+     * @return An Action that executes the run to position command.
      */
-    public void ST(int ticks) {
-        motor1.ST(ticks);
-        motor2.ST(ticks);
+    private Action runToPosition() {
+        return new RunToPosition();
+    }
+
+    private class SetTargetPosition implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            motor1.STP(targetPosition);
+            motor2.STP(targetPosition);
+            return false;
+        }
     }
 
     /**
-     * Returns the current position of the motor Object, Ex frontLeft.GCP();
+     * Sets the target position of the motors while respecting min and max constraints.
      *
-     * @return The current position of the motor in ticks
+     * @param targetPosition Desired target position in ticks.
+     * @return An Action that sets the target position.
      */
-    public int GCP() {
-        return (int) ((motor1.GCP() + motor2.GCP()) / 2);
+    private Action setTargetPosition(int targetPosition) {
+        this.targetPosition = targetPosition > max ? max : (targetPosition < min ? min : targetPosition);
+        return new SetTargetPosition();
+    }
+
+    private class StopAndReset implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            motor1.SAR();
+            motor2.SAR();
+            return false;
+        }
     }
 
     /**
-     * Returns the target position of the motor Object, Ex frontLeft.GTP();
+     * Returns an Action that stops and resets the motors encoders.
      *
-     * @return The target position of the motor in ticks
+     * @return An Action that executes the stop and reset command.
      */
-    public int GTP() {
-        return (int) ((motor1.GTP() + motor2.GTP()) / 2);
+    private Action stopAndReset() {
+        return new StopAndReset();
+    }
+
+    private class RunWithoutEncoder implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            motor1.RWE();
+            motor2.RWE();
+            return false;
+        }
     }
 
     /**
-     * Returns the power of the motor Object
+     * Returns an Action that sets the motors to RUN_WITHOUT_ENCODER mode.
      *
-     * @return The motor's power as a double
+     * @return An Action that executes the run without encoder command.
      */
-    public double GP() {
+    private Action runWithoutEncoder() {
+        return new RunWithoutEncoder();
+    }
+
+    private class RunUsingEncoder implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            motor1.RUE();
+            motor2.RUE();
+            return false;
+        }
+    }
+
+    /**
+     * Returns an Action that sets the motors to RUN_USING_ENCODER mode.
+     *
+     * @return An Action that executes the run using encoder command.
+     */
+    private Action runUsingEncoder() {
+        return new RunUsingEncoder();
+    }
+
+    public class SetTolerance implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            motor1.ST(tolerance);
+            motor2.ST(tolerance);
+            return false;
+        }
+    }
+
+    /**
+     * Sets the tolerance of the motors, which defines how close the current
+     * position must be to the target position for isBusy() to return false.
+     *
+     * @param tolerance The tolerance in ticks.
+     * @return An Action that sets the motors' tolerance.
+     */
+    public Action setTolerance(int tolerance) {
+        this.tolerance = tolerance;
+        return new SetTolerance();
+    }
+
+    /**
+     * Returns the current position of the motors.
+     *
+     * @return The current position of the motors in ticks.
+     */
+    public int getCurrentPosition() {
+        return (int) (motor1.GCP() + motor2.GCP()) / 2;
+    }
+
+    /**
+     * Returns the target position of the motors.
+     *
+     * @return The target position of the motors in ticks.
+     */
+    public int getTargetPosition() {
+        return this.targetPosition;
+    }
+
+    /**
+     * Returns the power currently set on the motors.
+     *
+     * @return The motors' power as a double.
+     */
+    private double getPower() {
         return motor1.GP();
     }
 
-    private double powerSetter(int ticks) {
-        if (GCP() < ticks)
+    /**
+     * Calculates the power to set for the motors based on its current position
+     * relative to the target position and the defined tolerance.
+     *
+     * @return The power value to set for the motors.
+     */
+    private double powerSetter() {
+        if (getCurrentPosition() > this.targetPosition - this.tolerance && getCurrentPosition() < this.targetPosition + this.tolerance)
+            return (Constants.downPower + Constants.upPower) / 2;
+        else if (getCurrentPosition() < this.targetPosition - this.tolerance)
             return Constants.upPower;
-        return Constants.downPower;
+        else
+            return Constants.downPower;
     }
 
     /**
-     * Go to a position of height
+     * Moves the motors to a specified target position with calculated power.
      *
-     * @param ticks The height in ticks you want travel to
+     * @param targetPosition The height in ticks you want the motors to travel to.
+     * @return An Action that executes the movement to the target position.
      */
-    public void goToPosition(int ticks) {
-        goToPosition(ticks, true);
+    public Action goToPosition(int targetPosition) {
+        return new ParallelAction(new SequentialAction(
+                setTargetPosition(targetPosition),
+                runToPosition()
+        ), setPower(powerSetter()));
     }
 
     /**
-     * Go to a position of height
+     * Moves the motors to a specified target position and waits until
+     * the position is reached before proceeding.
      *
-     * @param ticks The height in ticks you want travel to
-     * @param wait  If you want to wait till you get to position or if the code should just continue
+     * @param targetPosition The height in ticks you want the motors to travel to.
+     * @return An Action that executes the movement and waits for completion.
      */
-    public void goToPosition(int ticks, boolean wait) {
-        Telemetry.Item slide2MotorTelemetry = telemetry().addData("Moving Slide/Lift: ", isBusy());
-        STP(GTP() + ticks);
-        SP(powerSetter(ticks));
-        RTP();
-        if (wait) {
-            telemetry().update();
-            while (isBusy()) {
-            }
-        }
-        SP(Constants.downPower);
-        telemetry().removeItem(slide2MotorTelemetry);
-        telemetry().update();
+    public Action goToPositionWaitTillPosition(int targetPosition) {
+        return new ParallelAction(new SequentialAction(
+                setTargetPosition(targetPosition),
+                runToPosition(),
+                new Action() {
+                    @Override
+                    public boolean run(@NonNull TelemetryPacket packet) {
+                        return !motor1.isBusy() || !motor2.isBusy();
+                    }
+                }
+        ), setPower(powerSetter()));
     }
 
     /**
-     * Adds a level of height to maintain and travel to
+     * Adds a level of height to maintain and travel to.
      *
-     * @param ticks The height in ticks you want to maintain
-     * @return Returns false if the level input isnt valid
+     * @param ticks The height in ticks to maintain.
+     * @return false if the level input is invalid (already exists).
      */
     public boolean addLevels(int ticks) {
         if (levels.contains(ticks))
@@ -178,16 +282,23 @@ public class Lift2Motor extends subsystem {
     }
 
     /**
-     * Adds a level of height to maintain and travel to
+     * Moves the motors to a predetermined level.
      *
-     * @param level The level you have predetermined and want to travel to
-     * @param wait  If you would or would like to proceed the code without getting to position or not
-     * @return Returns false if the level input isnt valid
+     * @param level The index of the level to travel to.
+     * @return An Action that moves the motors to the specified level.
      */
-    public boolean goToLevel(int level, boolean wait) {
-        if (levels.size() > level)
-            return false;
-        goToPosition(levels.get(level), wait);
-        return true;
+    public Action goToLevel(int level) {
+        return goToPosition(levels.get(level));
+    }
+
+    /**
+     * Moves the motor to a predetermined level and waits until
+     * the position is reached before proceeding.
+     *
+     * @param level The index of the level to travel to.
+     * @return An Action that executes the movement and waits for completion.
+     */
+    public Action goToLevelWaitTillPosition(int level) {
+        return goToPositionWaitTillPosition(levels.get(level));
     }
 }

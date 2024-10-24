@@ -1,7 +1,2 @@
-Make runnable for the end of RTP for Drivetrains and Manipulators, try to not make it taxing
-Figure out odometry and then entirely rewrite the drivetrains
-Figure up trapazoidal powering stuff, to ramp up and down power to fix roadrunner-ing
-Rewrite all the drivetrains a third time because theres 2 approaches to odemetry
-Fix drivetrain variables for clarity
-
 Maybe make CR servo, but then again you can just take advantage of how a CR servo works, and use .5 as the position to go stay, and just go up and down from there. Also CR servo is just basically dcmotorsimple anyways
+teamcode.roadrunner.tuning.TurningOpModes line 38 public static final boolean DISABLED = true;
