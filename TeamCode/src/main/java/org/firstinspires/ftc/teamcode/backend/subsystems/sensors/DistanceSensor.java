@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.old.backend.subsystems.sensors;
+package org.firstinspires.ftc.teamcode.backend.subsystems.sensors;
 
 import androidx.annotation.NonNull;
 
@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.old.backend.libraries.subsystem;
+import org.firstinspires.ftc.teamcode.backend.libraries.subsystem;
 
 public class DistanceSensor extends subsystem {
     private com.qualcomm.robotcore.hardware.DistanceSensor distanceSensor;

@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.old.backend.subsystems.actuators.base;
+package org.firstinspires.ftc.teamcode.backend.subsystems.actuators.base;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.old.backend.libraries.subsystem;
+import org.firstinspires.ftc.teamcode.backend.libraries.subsystem;
 
 /**
  * A wrapper class for the {@link com.qualcomm.robotcore.hardware.Servo} that provides methods

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.old.backend.subsystems.actuators.endEffectors;
+package org.firstinspires.ftc.teamcode.backend.subsystems.actuators.endEffectors;
 
 import androidx.annotation.NonNull;
 
@@ -6,8 +6,8 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.old.backend.libraries.subsystem;
-import org.firstinspires.ftc.teamcode.old.backend.subsystems.actuators.base.Servo;
+import org.firstinspires.ftc.teamcode.backend.libraries.subsystem;
+import org.firstinspires.ftc.teamcode.backend.subsystems.actuators.base.Servo;
 
 /**
  * The TwoStateServo class controls a servo mechanism that can be toggled between two positions: open and closed.

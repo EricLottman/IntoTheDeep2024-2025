@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.old.backend.subsystems.actuators.base;
+package org.firstinspires.ftc.teamcode.backend.subsystems.actuators.base;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetMotorEncoderPositionCommand;
@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.old.backend.libraries.subsystem;
+import org.firstinspires.ftc.teamcode.backend.libraries.subsystem;
 
 /**
  * A class representing a motor and providing methods for controlling and interacting with it.

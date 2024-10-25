@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.old.backend.subsystems.actuators.manipulators;
+package org.firstinspires.ftc.teamcode.backend.subsystems.actuators.manipulators;
 
 import androidx.annotation.NonNull;
 
@@ -8,9 +8,9 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.old.backend.libraries.subsystem;
-import org.firstinspires.ftc.teamcode.old.backend.subsystems.actuators.base.Motor;
-import org.firstinspires.ftc.teamcode.old.backend.subsystems.Constants;
+import org.firstinspires.ftc.teamcode.backend.libraries.subsystem;
+import org.firstinspires.ftc.teamcode.backend.subsystems.actuators.base.Motor;
+import org.firstinspires.ftc.teamcode.backend.subsystems.Constants;
 
 import java.util.LinkedList;
 
