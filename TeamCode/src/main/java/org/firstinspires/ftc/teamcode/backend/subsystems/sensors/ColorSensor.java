@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.old.backend.subsystems.sensors;
+package org.firstinspires.ftc.teamcode.backend.subsystems.sensors;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -6,8 +6,8 @@ import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.old.backend.libraries.subsystem;
-import org.firstinspires.ftc.teamcode.old.backend.subsystems.opModeTools.EaseCommands;
+import org.firstinspires.ftc.teamcode.backend.libraries.subsystem;
+import org.firstinspires.ftc.teamcode.backend.subsystems.opModeTools.EaseCommands;
 
 import java.util.Objects;
 
@@ -84,41 +84,5 @@ public class ColorSensor extends subsystem {
      */
     public void setLed(boolean power) {
         colorSensor.enableLed(power);
-    }
-
-    /**
-     * Returns whether or not the red value falls within a set boundary
-     *
-     * @param num1 Smaller value
-     * @param num2 Larger value
-     * @return Whether or not the value is in the boundary (true or false)
-     */
-    @Deprecated
-    public boolean redBoundary(@ColorInt int num1, @ColorInt int num2) {
-        return colorSensor.red() > num1 && colorSensor.red() < num2;
-    }
-
-    /**
-     * Returns whether or not the blue value falls within a set boundary
-     *
-     * @param num1 Smaller value
-     * @param num2 Larger value
-     * @return Whether or not the value is in the boundary (true or false)
-     */
-    @Deprecated
-    public boolean blueBoundary(@ColorInt int num1, @ColorInt int num2) {
-        return colorSensor.blue() > num1 && colorSensor.blue() < num2;
-    }
-
-    /**
-     * Returns whether or not the green value falls within a set boundary
-     *
-     * @param num1 Smaller value
-     * @param num2 Larger value
-     * @return Whether or not the value is in the boundary (true or false)
-     */
-    @Deprecated
-    public boolean greenBoundary(@ColorInt int num1, @ColorInt int num2) {
-        return colorSensor.green() > num1 && colorSensor.green() < num2;
     }
 }
