@@ -37,7 +37,7 @@ public class ParallelMotionLinkage extends subsystem {
      * @param inchRadius The radius in inches for the linkage.
      * @param gearRatio The gear ratio for the motor.
      */
-    public ParallelMotionLinkage(String name, Motor motor, Telemetry telemetry, int min, int max, double inchRadius, int gearRatio) {
+    public ParallelMotionLinkage(String name, Motor motor, Telemetry telemetry, int min, int max, double inchRadius, double gearRatio) {
         super(telemetry);
         this.name = name;
         this.motor = motor;
@@ -111,7 +111,7 @@ public class ParallelMotionLinkage extends subsystem {
      * @return An Action that sets the target position.
      */
     private Action setTargetPosition(int targetPosition) {
-        this.targetPosition = targetPosition > max ? max : (targetPosition < min ? min : targetPosition);
+        this.targetPosition = targetPosition > max ? max : (Math.max(targetPosition, min));
         return new SetTargetPosition();
     }
 
@@ -235,12 +235,7 @@ public class ParallelMotionLinkage extends subsystem {
         return new SequentialAction(
                 setTargetPosition(targetPosition),
                 runToPosition(),
-                new Action() {
-                    @Override
-                    public boolean run(@NonNull TelemetryPacket packet) {
-                        return !motor.isBusy();
-                    }
-                }
+                packet -> !motor.isBusy()
         );
     }
 

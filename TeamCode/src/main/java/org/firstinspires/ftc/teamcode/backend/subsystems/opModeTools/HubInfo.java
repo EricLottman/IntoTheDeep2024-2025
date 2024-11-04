@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.backend.subsystems.opModeTools;
 
-import androidx.annotation.NonNull;
-
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.commands.standard.LynxSetModuleLEDColorCommand;
@@ -108,7 +105,7 @@ public class HubInfo {
     public Action getStatusReport() {
         return packet -> {
             packet.addLine(String.format("Voltage: %.2fV\nCurrent: %.2fA\nTemperature: %.2f°F\nWarnings: %s",
-            getVoltage(), getCurrent(), getTemperature(), getWarnings()));
+                    getVoltage(), getCurrent(), getTemperature(), getWarnings()));
             return false;
         };
     }

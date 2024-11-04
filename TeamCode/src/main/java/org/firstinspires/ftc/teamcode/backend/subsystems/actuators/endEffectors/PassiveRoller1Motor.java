@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.backend.subsystems.actuators.endEffectors;
 
-import androidx.annotation.NonNull;
-
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
