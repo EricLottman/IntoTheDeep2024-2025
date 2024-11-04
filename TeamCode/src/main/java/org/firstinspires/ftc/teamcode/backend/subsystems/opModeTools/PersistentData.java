@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -17,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PersistentData {
     private static final String FILE = "data.dat";
-    private static Map<String, DataObject> data;
+    private static ConcurrentHashMap data;
 
 
     /**
@@ -25,7 +24,7 @@ public class PersistentData {
      * file. If the file does not exist, a new {@link ConcurrentHashMap} is created
      */
     public PersistentData() {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File(FILE)))) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE))) {
             data = (ConcurrentHashMap) ois.readObject();
         } catch (FileNotFoundException e) {
             data = new ConcurrentHashMap<>(); // file doesn't exist, initialize new HashMap
@@ -104,7 +103,7 @@ public class PersistentData {
      * @return {@code true} if the data was saved successfully, {@code false} otherwise
      */
     public static boolean saveData() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(FILE)))) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE))) {
             oos.writeObject(data);
         } catch (Exception e) {
             return false;
@@ -118,7 +117,7 @@ public class PersistentData {
      *
      * @param <T> The type of the data to be stored
      */
-    public class DataObject<T> {
+    public static class DataObject<T> {
         private T data;
 
         /**

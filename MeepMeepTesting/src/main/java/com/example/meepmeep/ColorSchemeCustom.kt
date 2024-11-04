@@ -1,6 +1,6 @@
 package com.example.meepmeep
 
-import com.noahbres.meepmeep.core.colorscheme.ColorManager;
+import com.noahbres.meepmeep.core.colorscheme.ColorManager
 import com.noahbres.meepmeep.core.colorscheme.ColorScheme
 import java.awt.Color
 

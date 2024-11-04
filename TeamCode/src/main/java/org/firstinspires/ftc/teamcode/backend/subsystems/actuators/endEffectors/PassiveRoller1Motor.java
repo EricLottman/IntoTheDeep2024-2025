@@ -59,23 +59,20 @@ public class PassiveRoller1Motor extends subsystem {
      * @return A new Action object that, when run, will control the roller based on the specified direction.
      */
     public Action roll(RollerControl control) {
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                switch (control) {
-                    case FORWARD:
-                        motor.setPower(rollerSpeed);  // Move the roller forward at the specified speed.
-                        break;
-                    case BACKWARD:
-                        motor.setPower(-rollerSpeed);  // Move the roller backward at the specified speed.
-                        break;
-                    case DISENGAGE:
-                        motor.setPower(0);  // Stop the roller.
-                        break;
-                }
-                packet.put(name + " direction: ", control.toString());  // Log the control direction to telemetry.
-                return control != RollerControl.DISENGAGE;  // Return true if the roller is moving, false if disengaged.
+        return packet -> {
+            switch (control) {
+                case FORWARD:
+                    motor.setPower(rollerSpeed);  // Move the roller forward at the specified speed.
+                    break;
+                case BACKWARD:
+                    motor.setPower(-rollerSpeed);  // Move the roller backward at the specified speed.
+                    break;
+                case DISENGAGE:
+                    motor.setPower(0);  // Stop the roller.
+                    break;
             }
+            packet.put(name + " direction: ", control.toString());  // Log the control direction to telemetry.
+            return control != RollerControl.DISENGAGE;  // Return true if the roller is moving, false if disengaged.
         };
     }
 }
