@@ -3,12 +3,20 @@ package com.example.meepmeep;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Pose2dDual;
 import com.acmerobotics.roadrunner.Rotation2d;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
-import com.noahbres.meepmeep.core.colorscheme.ColorScheme;
+import com.noahbres.meepmeep.core.colorscheme.ColorManager;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeBlueDark;
+import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
+import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedLight;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
+import com.noahbres.meepmeep.roadrunner.DriveTrainType;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.awt.Color;
 
 public class MeepMeepTesting {
     public static void main(String[] args) {
@@ -16,26 +24,90 @@ public class MeepMeepTesting {
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(160, 160, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(1200, 120, Math.toRadians(180), Math.toRadians(180), 15)
+                .setDriveTrainType(DriveTrainType.MECANUM)
+                .setColorScheme(new ColorSchemeRedDark())
+//                .setColorScheme(new ColorScheme())
                 .build();
 
-        Vector2d basket = new Vector2d(60, 52);
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(11.8, 61.7, 0))
-                .waitSeconds(1)
-                .splineTo(new Vector2d(60, 38), 3 * Math.PI / 2)
-                .waitSeconds(.25)
-                .lineToYLinearHeading(52, Math.PI / 4)
-                .waitSeconds(.25)
-                .splineTo(new Vector2d(50, 38), 3 * Math.PI / 2)
-                .waitSeconds(.25)
-                .splineTo(basket, Math.PI / 4)
-                .waitSeconds(.25)
-                .splineTo(new Vector2d(70, 38), 3 * Math.PI / 2)
-                .waitSeconds(.25)
-                .splineTo(basket, Math.PI / 4)
-                .waitSeconds(.25)
-                .strafeToLinearHeading(new Vector2d(-52, 52), Math.PI / 2)
-                .waitSeconds(1)
+        double
+                blockHeading = Math.PI / 2,
+                basketHeading = 5 * Math.PI / 4,
+                endHeading = 3 * Math.PI / 2;
+
+        Vector2d
+                initialVector = new Vector2d(-11.8, -61.7),
+                basketVector = new Vector2d(-60, -52),
+                midBlockVector = new Vector2d(-60, -38),
+                rightBlockVector = new Vector2d(-50, -38),
+                leftBlockVector = new Vector2d(-70, -38),
+                endVector = new Vector2d(52, -54);
+
+        Pose2d
+                initialPose = new Pose2d(initialVector, blockHeading),
+                basketPose = new Pose2d(basketVector, basketHeading),
+                midBlockPose = new Pose2d(midBlockVector, blockHeading),
+                rightBlockPose = new Pose2d(rightBlockVector, blockHeading),
+                leftBlockPose = new Pose2d(leftBlockVector, blockHeading);
+
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(0,0, Math.PI/2))
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
+                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random()*60*2-60, Math.random()*60*2-60), Math.random()*3*Math.PI/Math.random()*3), Math.random()*3*Math.PI/Math.random()*3)
                 .build());
 
 
@@ -43,6 +115,8 @@ public class MeepMeepTesting {
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
                 .addEntity(myBot)
+                .setAxesInterval(10)
+                .setTheme(new ColorSchemeCustom())
                 .start();
     }
 }

@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode.backend.subsystems.actuators.base;
 
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.hardware.lynx.commands.core.LynxGetMotorEncoderPositionCommand;
-import com.qualcomm.hardware.lynx.commands.core.LynxSetMotorChannelModeCommand;
-import com.qualcomm.hardware.lynx.commands.core.LynxSetMotorTargetPositionCommand;
 import com.qualcomm.robotcore.exception.TargetPositionNotSetException;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -18,6 +15,7 @@ import org.firstinspires.ftc.teamcode.backend.libraries.subsystem;
  * A class representing a motor and providing methods for controlling and interacting with it.
  * This class extends the functionality of {@link DcMotorEx} to simplify the use of motors
  */
+// I am going to comment out the lynx commands so because this repositoy is already a test, and I feel I should only test 1 thing at a time
 public class Motor extends subsystem implements Comparable<Motor> {
     private DcMotorEx motor;
     private String name;
@@ -76,7 +74,7 @@ public class Motor extends subsystem implements Comparable<Motor> {
      *
      * @param power The power of the motor, between -1.0 and 1.0
      */
-    public void SP(double power) {
+    public void setPower(double power) {
         motor.setPower(power);
     }
 
@@ -85,15 +83,16 @@ public class Motor extends subsystem implements Comparable<Motor> {
      *
      * @param targetPosition The target position in ticks
      */
-    public void STP(int targetPosition) {
+    public void setTargetPosition(int targetPosition) {
         this.targetPosition = targetPosition + globalTicks;
-        while (true) {
-            try {
-                new LynxSetMotorTargetPositionCommand(lynxModule, motorPort, this.targetPosition, tolerance).send();
-            } catch (Exception e) {
-
-            }
-        }
+        motor.setTargetPosition(this.targetPosition);
+//        while (true) {
+//            try {
+//                new LynxSetMotorTargetPositionCommand(lynxModule, motorPort, this.targetPosition, tolerance).send();
+//            } catch (Exception e) {
+//
+//            }
+//        }
     }
 
     /**
@@ -101,49 +100,52 @@ public class Motor extends subsystem implements Comparable<Motor> {
      *
      * @throws TargetPositionNotSetException If the target position is not set before calling this method
      */
-    public void RTP() throws TargetPositionNotSetException {
+    public void runToPosition() throws TargetPositionNotSetException {
         if (this.targetPosition == null)
             throw new TargetPositionNotSetException();
-        while (true) {
-            try {
-                new LynxSetMotorChannelModeCommand(lynxModule, motorPort, DcMotor.RunMode.RUN_TO_POSITION, DcMotor.ZeroPowerBehavior.BRAKE).send();
-            } catch (Exception e) {
-
-            }
-        }
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        while (true) {
+//            try {
+//                new LynxSetMotorChannelModeCommand(lynxModule, motorPort, DcMotor.RunMode.RUN_TO_POSITION, DcMotor.ZeroPowerBehavior.BRAKE).send();
+//            } catch (Exception e) {
+//
+//            }
+//        }
     }
 
     /**
      * Resets the motor's encoder and sets the global ticks
      */
-    public void SAR() {
-        globalTicks = GCP();
+    public void stopAndReset() {
+        globalTicks = getCurrentPosition();
     }
 
     /**
      * Sets the motor to run without using encoders
      */
-    public void RWE() {
-        while (true) {
-            try {
-                new LynxSetMotorChannelModeCommand(lynxModule, motorPort, DcMotor.RunMode.RUN_WITHOUT_ENCODER, DcMotor.ZeroPowerBehavior.BRAKE).send();
-            } catch (Exception e) {
-
-            }
-        }
+    public void runWithoutEncoder() {
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        while (true) {
+//            try {
+//                new LynxSetMotorChannelModeCommand(lynxModule, motorPort, DcMotor.RunMode.RUN_WITHOUT_ENCODER, DcMotor.ZeroPowerBehavior.BRAKE).send();
+//            } catch (Exception e) {
+//
+//            }
+//        }
     }
 
     /**
      * Sets the motor to run using the encoders
      */
-    public void RUE() {
-        while (true) {
-            try {
-                new LynxSetMotorChannelModeCommand(lynxModule, motorPort, DcMotor.RunMode.RUN_USING_ENCODER, DcMotor.ZeroPowerBehavior.BRAKE);
-            } catch (Exception e) {
-
-            }
-        }
+    public void runUsingEncoder() {
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        while (true) {
+//            try {
+//                new LynxSetMotorChannelModeCommand(lynxModule, motorPort, DcMotor.RunMode.RUN_USING_ENCODER, DcMotor.ZeroPowerBehavior.BRAKE);
+//            } catch (Exception e) {
+//
+//            }
+//        }
     }
 
     /**
@@ -151,8 +153,8 @@ public class Motor extends subsystem implements Comparable<Motor> {
      *
      * @param ticks The number of encoder ticks within which the motor is considered to have reached its target
      */
-    public void ST(int ticks) {
-        this.tolerance = ticks;
+    public void setTolerance(int ticks) {
+        this.tolerance = Math.abs(ticks);
     }
 
     /**
@@ -161,7 +163,7 @@ public class Motor extends subsystem implements Comparable<Motor> {
      * @return {@code true} if the motor is busy, {@code false} otherwise
      */
     public boolean isBusy() {
-        return Math.abs(GCP() - GTP()) > this.tolerance;
+        return Math.abs(getCurrentPosition() - getTargetPosition()) > this.tolerance;
     }
 
     /**
@@ -169,14 +171,15 @@ public class Motor extends subsystem implements Comparable<Motor> {
      *
      * @return The current position of the motor in ticks
      */
-    public int GCP() {
-        while (true) {
-            try {
-                return new LynxGetMotorEncoderPositionCommand(lynxModule, motorPort).sendReceive().getPosition() - globalTicks;
-            } catch (Exception e) {
-
-            }
-        }
+    public int getCurrentPosition() {
+        return motor.getCurrentPosition();
+//        while (true) {
+//            try {
+//                return new LynxGetMotorEncoderPositionCommand(lynxModule, motorPort).sendReceive().getPosition() - globalTicks;
+//            } catch (Exception e) {
+//
+//            }
+//        }
     }
 
     /**
@@ -184,8 +187,9 @@ public class Motor extends subsystem implements Comparable<Motor> {
      *
      * @return The target position of the motor in ticks
      */
-    public int GTP() {
-        return this.targetPosition;
+    public int getTargetPosition() {
+//        return this.targetPosition;
+        return motor.getTargetPosition();
     }
 
     /**
@@ -193,7 +197,7 @@ public class Motor extends subsystem implements Comparable<Motor> {
      *
      * @return The power of the motor as a double between -1.0 and 1.0
      */
-    public double GP() {
+    public double getPower() {
         return motor.getPower();
     }
 

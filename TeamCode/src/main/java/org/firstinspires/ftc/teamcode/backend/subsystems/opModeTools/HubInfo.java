@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.backend.subsystems.opModeTools;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.commands.standard.LynxSetModuleLEDColorCommand;
 
@@ -69,17 +73,24 @@ public class HubInfo {
      * @param g The green component of the color (0-255)
      * @param b The blue component of the color (0-255)
      */
-    public void setLed(byte r, byte g, byte b) {
-        if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
-            throw new IllegalArgumentException("RGB values must be between 0 and 255.");
-        }
-        while (true) {
-            try {
-                new LynxSetModuleLEDColorCommand(lynxModule, r, g, b).send();
-            } catch (Exception e) {
-                // Handle the exception (currently suppressed)
+    public Action setLed(byte r, byte g, byte b) {
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
+                    throw new IllegalArgumentException("RGB values must be between 0 and 255.");
+                }
+                while (true) {
+                    try {
+                        new LynxSetModuleLEDColorCommand(lynxModule, r, g, b).send();
+                        break;
+                    } catch (Exception e) {
+                        // Handle the exception (currently suppressed)
+                    }
+                }
+                return false;
             }
-        }
+        };
     }
 
     /**
@@ -97,8 +108,14 @@ public class HubInfo {
      *
      * @return A string summarizing the hub's current status.
      */
-    public String getStatusReport() {
-        return String.format("Voltage: %.2fV, Current: %.2fA, Temperature: %.2f°F, Warnings: %s",
-                getVoltage(), getCurrent(), getTemperature(), getWarnings());
+    public Action getStatusReport() {
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                packet.addLine(String.format("Voltage: %.2fV\nCurrent: %.2fA\nTemperature: %.2f°F\nWarnings: %s",
+                getVoltage(), getCurrent(), getTemperature(), getWarnings()));
+                return false;
+            }
+        };
     }
 }

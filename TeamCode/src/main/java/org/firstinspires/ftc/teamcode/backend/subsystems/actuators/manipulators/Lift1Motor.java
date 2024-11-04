@@ -46,7 +46,7 @@ public class Lift1Motor extends subsystem {
         this.max = max;
         this.power = 0;
         this.tolerance = 5;
-        this.motor.ST(tolerance);
+        this.motor.setTolerance(tolerance);
     }
 
     /**
@@ -58,11 +58,19 @@ public class Lift1Motor extends subsystem {
         return motor.isBusy();
     }
 
+    public Action untilPosition() {
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                return !isBusy();
+            }
+        };
+    }
 
     private class SetPower implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            motor.SP(power);
+            motor.setPower(power);
             return false;
         }
     }
@@ -81,7 +89,7 @@ public class Lift1Motor extends subsystem {
     private class RunToPosition implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            motor.RTP();
+            motor.runToPosition();
             return false;
         }
     }
@@ -98,7 +106,7 @@ public class Lift1Motor extends subsystem {
     private class SetTargetPosition implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            motor.STP(targetPosition);
+            motor.setTargetPosition(targetPosition);
             return false;
         }
     }
@@ -117,7 +125,7 @@ public class Lift1Motor extends subsystem {
     private class StopAndReset implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            motor.SAR();
+            motor.stopAndReset();
             return false;
         }
     }
@@ -134,7 +142,7 @@ public class Lift1Motor extends subsystem {
     private class RunWithoutEncoder implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            motor.RWE();
+            motor.runWithoutEncoder();
             return false;
         }
     }
@@ -151,7 +159,7 @@ public class Lift1Motor extends subsystem {
     private class RunUsingEncoder implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            motor.RUE();
+            motor.runUsingEncoder();
             return false;
         }
     }
@@ -168,7 +176,7 @@ public class Lift1Motor extends subsystem {
     public class SetTolerance implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            motor.ST(tolerance);
+            motor.setTolerance(tolerance);
             return false;
         }
     }
@@ -191,7 +199,7 @@ public class Lift1Motor extends subsystem {
      * @return The current position of the motor in ticks.
      */
     public int getCurrentPosition() {
-        return motor.GCP();
+        return motor.getCurrentPosition();
     }
 
     /**
@@ -209,7 +217,7 @@ public class Lift1Motor extends subsystem {
      * @return The motor's power as a double.
      */
     private double getPower() {
-        return motor.GP();
+        return motor.getPower();
     }
 
     /**

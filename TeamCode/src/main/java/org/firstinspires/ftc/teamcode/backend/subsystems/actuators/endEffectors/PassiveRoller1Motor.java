@@ -39,7 +39,7 @@ public class PassiveRoller1Motor extends subsystem {
         this.name = name;
         this.motor = motor;
         this.rollerSpeed = rollerSpeed;
-        motor.RWE();  // Resets or configures the motor for running without encoders.
+        motor.runWithoutEncoder();  // Resets or configures the motor for running without encoders.
     }
 
     /**
@@ -64,13 +64,13 @@ public class PassiveRoller1Motor extends subsystem {
             public boolean run(@NonNull TelemetryPacket packet) {
                 switch (control) {
                     case FORWARD:
-                        motor.SP(rollerSpeed);  // Move the roller forward at the specified speed.
+                        motor.setPower(rollerSpeed);  // Move the roller forward at the specified speed.
                         break;
                     case BACKWARD:
-                        motor.SP(-rollerSpeed);  // Move the roller backward at the specified speed.
+                        motor.setPower(-rollerSpeed);  // Move the roller backward at the specified speed.
                         break;
                     case DISENGAGE:
-                        motor.SP(0);  // Stop the roller.
+                        motor.setPower(0);  // Stop the roller.
                         break;
                 }
                 packet.put(name + " direction: ", control.toString());  // Log the control direction to telemetry.

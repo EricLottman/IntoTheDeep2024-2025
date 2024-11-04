@@ -28,9 +28,9 @@ public class PersistentData {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File(FILE)))) {
             data = (ConcurrentHashMap) ois.readObject();
         } catch (FileNotFoundException e) {
-            data = new ConcurrentHashMap<>(); // File doesn't exist, initialize new HashMap
+            data = new ConcurrentHashMap<>(); // file doesn't exist, initialize new HashMap
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace(); // Log error
+            e.printStackTrace(); // log error
             data = new ConcurrentHashMap<>();
         }
     }

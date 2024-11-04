@@ -40,8 +40,8 @@ public class ParallelMotionLinkageUnlimited extends subsystem {
         this.ticksPerRotation = (int) (gearRatio * 28); // Assume 28 ticks per motor revolution
         this.power = .7;
         this.tolerance = 5;
-        this.motor.ST(tolerance);
-        this.motor.SP(power);
+        this.motor.setTolerance(tolerance);
+        this.motor.setPower(power);
     }
 
     /**
@@ -59,7 +59,7 @@ public class ParallelMotionLinkageUnlimited extends subsystem {
     private class SetPower implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            motor.SP(power);
+            motor.setPower(power);
             return false;
         }
     }
@@ -81,7 +81,7 @@ public class ParallelMotionLinkageUnlimited extends subsystem {
     private class RunToPosition implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            motor.RTP();
+            motor.runToPosition();
             return false;
         }
     }
@@ -101,7 +101,7 @@ public class ParallelMotionLinkageUnlimited extends subsystem {
     private class SetTargetPosition implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            motor.STP(targetPosition);
+            motor.setTargetPosition(targetPosition);
             return false;
         }
     }
@@ -123,7 +123,7 @@ public class ParallelMotionLinkageUnlimited extends subsystem {
     private class StopAndReset implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            motor.SAR();
+            motor.stopAndReset();
             return false;
         }
     }
@@ -143,7 +143,7 @@ public class ParallelMotionLinkageUnlimited extends subsystem {
     private class RunWithoutEncoder implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            motor.RWE();
+            motor.runWithoutEncoder();
             return false;
         }
     }
@@ -163,7 +163,7 @@ public class ParallelMotionLinkageUnlimited extends subsystem {
     private class RunUsingEncoder implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            motor.RUE();
+            motor.runUsingEncoder();
             return false;
         }
     }
@@ -183,7 +183,7 @@ public class ParallelMotionLinkageUnlimited extends subsystem {
     public class SetTolerance implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            motor.ST(tolerance);
+            motor.setTolerance(tolerance);
             return false;
         }
     }
@@ -206,7 +206,7 @@ public class ParallelMotionLinkageUnlimited extends subsystem {
      * @return Current motor position in ticks.
      */
     public int getCurrentPosition() {
-        return motor.GCP();
+        return motor.getCurrentPosition();
     }
 
     /**
@@ -224,7 +224,7 @@ public class ParallelMotionLinkageUnlimited extends subsystem {
      * @return The power level of the motor as a double.
      */
     private double getPower() {
-        return motor.GP();
+        return motor.getPower();
     }
 
     /**
