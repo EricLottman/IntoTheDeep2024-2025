@@ -250,12 +250,7 @@ public class ParallelMotionLinkageUnlimited extends subsystem {
         return new SequentialAction(
                 setTargetPosition((ticksPerRotation * getClosestTargetPosition(getCurrentDegrees(), targetPosition)) / 360),
                 runToPosition(),
-                new Action() {
-                    @Override
-                    public boolean run(@NonNull TelemetryPacket packet) {
-                        return !motor.isBusy();
-                    }
-                }
+                packet -> !motor.isBusy()
         );
     }
 

@@ -62,7 +62,7 @@ public class HubInfo {
      * @return Temperature
      */
     public Temperature getTemperature() {
-//        return this.lynxModule.getTemperature(TempUnit.FARENHEIT);
+//        return this.lynxModule.getTemperature(TempUnit.FAHRENHEIT);
         return new Temperature(TempUnit.FARENHEIT, this.lynxModule.getTemperature(TempUnit.FARENHEIT), System.currentTimeMillis());
     }
 
@@ -74,22 +74,19 @@ public class HubInfo {
      * @param b The blue component of the color (0-255)
      */
     public Action setLed(byte r, byte g, byte b) {
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
-                    throw new IllegalArgumentException("RGB values must be between 0 and 255.");
-                }
-                while (true) {
-                    try {
-                        new LynxSetModuleLEDColorCommand(lynxModule, r, g, b).send();
-                        break;
-                    } catch (Exception e) {
-                        // Handle the exception (currently suppressed)
-                    }
-                }
-                return false;
+        return packet -> {
+            if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
+                throw new IllegalArgumentException("RGB values must be between 0 and 255.");
             }
+            while (true) {
+                try {
+                    new LynxSetModuleLEDColorCommand(lynxModule, r, g, b).send();
+                    break;
+                } catch (Exception e) {
+                    // Handle the exception (currently suppressed)
+                }
+            }
+            return false;
         };
     }
 
@@ -109,13 +106,10 @@ public class HubInfo {
      * @return A string summarizing the hub's current status.
      */
     public Action getStatusReport() {
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                packet.addLine(String.format("Voltage: %.2fV\nCurrent: %.2fA\nTemperature: %.2f°F\nWarnings: %s",
-                getVoltage(), getCurrent(), getTemperature(), getWarnings()));
-                return false;
-            }
+        return packet -> {
+            packet.addLine(String.format("Voltage: %.2fV\nCurrent: %.2fA\nTemperature: %.2f°F\nWarnings: %s",
+            getVoltage(), getCurrent(), getTemperature(), getWarnings()));
+            return false;
         };
     }
 }

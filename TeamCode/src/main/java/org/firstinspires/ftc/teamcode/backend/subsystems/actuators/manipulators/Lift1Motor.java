@@ -59,12 +59,7 @@ public class Lift1Motor extends subsystem {
     }
 
     public Action untilPosition() {
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                return !isBusy();
-            }
-        };
+        return packet -> !isBusy();
     }
 
     private class SetPower implements Action {
