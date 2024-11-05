@@ -15,6 +15,7 @@ public class MeepMeepTesting {
         MeepMeep meepMeep = new MeepMeep(800);
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
+//                .setDimensions(10,10)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDriveTrainType(DriveTrainType.MECANUM)
@@ -42,7 +43,7 @@ public class MeepMeepTesting {
                 rightBlockPose = new Pose2d(rightBlockVector, blockHeading),
                 leftBlockPose = new Pose2d(leftBlockVector, blockHeading);
 
-        myBot.runAction(randomMove(myBot, new Pose2d(0, 0, Math.PI / 2), 50));
+        myBot.runAction(randomMove(myBot, new Pose2d(0, 0, Math.PI / 2), 10));
 
 //        myBot.getDrive().actionBuilder(new Pose2d(0,0, Math.PI/2))
 //                .splineToSplineHeading(new Pose2d(new Vector2d(Math.random() * 60 * 2 - 60, Math.random() * 60 * 2 - 60), Math.random() * 3 * Math.PI / Math.random() * 3), Math.random() * 3 * Math.PI / Math.random() * 3)
@@ -66,31 +67,37 @@ public class MeepMeepTesting {
         Action[] output = new Action[iterations];
         for (int i = 0; i < iterations; i++) {
             Pose2d targetPosition = new Pose2d(new Vector2d(Math.random() * 60 * 2 - 60, Math.random() * 60 * 2 - 60), Math.random() * 3 * Math.PI / (Math.random() * 3 + 0.1));
+            boolean isReversed = Math.abs(Math.toDegrees(Math.abs(currentPosition.heading.toDouble() - targetPosition.heading.toDouble()))) > 180;
             System.out.println(i + 1 + " of " + iterations + " moves generated");
             switch ((int) Math.round(Math.random() * 4)) {
                 case 0:
                     output[i] = myBot.getDrive().actionBuilder(currentPosition)
                             .splineToSplineHeading(targetPosition, Math.random() * 3 * Math.PI / (Math.random() * 3 + 0.1))
+                            .setReversed(isReversed)
                             .build();
                     break;
                 case 1:
                     output[i] = myBot.getDrive().actionBuilder(currentPosition)
                             .splineTo(targetPosition.position, targetPosition.heading)
+                            .setReversed(isReversed)
                             .build();
                     break;
                 case 2:
                     output[i] = myBot.getDrive().actionBuilder(currentPosition)
                             .strafeTo(targetPosition.position)
+                            .setReversed(isReversed)
                             .build();
                     break;
                 case 3:
                     output[i] = myBot.getDrive().actionBuilder(currentPosition)
                             .splineToLinearHeading(targetPosition, Math.random() * 3 * Math.PI / (Math.random() * 3 + 0.1))
+                            .setReversed(isReversed)
                             .build();
                     break;
                 case 4:
                     output[i] = myBot.getDrive().actionBuilder(currentPosition)
                             .strafeToLinearHeading(targetPosition.position, targetPosition.heading)
+                            .setReversed(isReversed)
                             .build();
                     break;
             }
