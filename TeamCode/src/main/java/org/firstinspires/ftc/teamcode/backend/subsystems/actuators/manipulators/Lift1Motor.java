@@ -113,7 +113,7 @@ public class Lift1Motor extends subsystem {
      * @return An Action that sets the target position.
      */
     private Action setTargetPosition(int targetPosition) {
-        this.targetPosition = targetPosition > max ? max : (targetPosition < min ? min : targetPosition);
+        this.targetPosition = targetPosition > max ? max : (Math.max(targetPosition, min));
         return new SetTargetPosition();
     }
 
@@ -254,12 +254,7 @@ public class Lift1Motor extends subsystem {
         return new ParallelAction(new SequentialAction(
                 setTargetPosition(targetPosition),
                 runToPosition(),
-                new Action() {
-                    @Override
-                    public boolean run(@NonNull TelemetryPacket packet) {
-                        return !motor.isBusy();
-                    }
-                }
+                packet -> !motor.isBusy()
         ), setPower(powerSetter()));
     }
 

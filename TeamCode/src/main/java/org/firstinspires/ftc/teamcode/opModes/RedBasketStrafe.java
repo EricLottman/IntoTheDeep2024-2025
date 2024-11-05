@@ -97,8 +97,4 @@ public class RedBasketStrafe extends LinearOpMode {
                     .build());
         }
     }
-
-    private Action returnToBasket(MecanumDrive drive, Pose2d initial) {
-        return drive.actionBuilder(initial).splineTo(new Vector2d(60, 52), Math.PI / 4).build();
-    }
 }
